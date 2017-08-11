@@ -1,7 +1,8 @@
 #lang racket/base
 
 (require ffi/unsafe
-         "structs.rkt")
+         "structs.rkt"
+         "types.rkt")
 
 (provide (all-defined-out))
 
@@ -18,54 +19,102 @@
   (get-ffi-obj "grpc_shutdown" lib-grpc (_fun -> _void)))
 
 (define grpc-metadata-array-init
-  (get-ffi-obj "grpc_metadata_array_init" lib-grpc (_fun _grpc-metadata-array-pointer -> _void)))
+  (get-ffi-obj
+   "grpc_metadata_array_init"
+   lib-grpc
+   (_fun _grpc-metadata-array-pointer -> _void)))
 
 (define grpc-metadata-array-destroy
-  (get-ffi-obj "grpc_metadata_array_destroy" lib-grpc (_fun _grpc-metadata-array-pointer -> _void)))
+  (get-ffi-obj
+   "grpc_metadata_array_destroy"
+   lib-grpc
+   (_fun _grpc-metadata-array-pointer -> _void)))
 
 (module+ test
- (test-not-exn
-  "grpc-metadata-array-init doesn't throw"
-  (lambda () (call-with-malloc _pointer grpc-metadata-array-init #:cast _grpc-metadata-array-pointer)))
+  (test-not-exn
+   "grpc-metadata-array-init doesn't throw"
+   (lambda ()
+     (call-with-malloc _pointer
+                       grpc-metadata-array-init
+                       #:cast _grpc-metadata-array-pointer)))
  (test-not-exn
   "grpc-metadata-array-destroy doesn't throw"
-  (lambda () (call-with-malloc _pointer grpc-metadata-array-destroy #:cast _grpc-metadata-array-pointer))))
+  (lambda ()
+    (call-with-malloc _pointer
+                      grpc-metadata-array-destroy
+                      #:cast _grpc-metadata-array-pointer))))
 
 
 (define grpc-call-details-init
-  (get-ffi-obj "grpc_call_details_init" lib-grpc (_fun _grpc-call-details-pointer -> _void)))
+  (get-ffi-obj
+   "grpc_call_details_init"
+   lib-grpc
+   (_fun _grpc-call-details-pointer -> _void)))
 
 (define grpc-call-details-destroy
-  (get-ffi-obj "grpc_call_details_destroy" lib-grpc (_fun _grpc-call-details-pointer -> _void)))
+  (get-ffi-obj
+   "grpc_call_details_destroy"
+   lib-grpc
+   (_fun _grpc-call-details-pointer -> _void)))
 
 (module+ test
  (test-not-exn
   "grpc-call-details-init doesn't throw"
-  (lambda () (call-with-malloc _pointer grpc-call-details-init #:cast _grpc-call-details-pointer)))
+  (lambda ()
+    (call-with-malloc _pointer
+                      grpc-call-details-init
+                      #:cast _grpc-call-details-pointer)))
  (test-not-exn
   "grpc-call-details-destroy doesn't throw"
-  (lambda () (call-with-malloc _pointer grpc-call-details-destroy #:cast _grpc-call-details-pointer))))
+  (lambda ()
+    (call-with-malloc _pointer
+                      grpc-call-details-destroy
+                      #:cast _grpc-call-details-pointer))))
 
 
 (define grpc-register-plugin
-  (get-ffi-obj "grpc_register_plugin" lib-grpc (_fun (_fun _pointer -> _void) (_fun _pointer -> _void) -> _void)))
+  (get-ffi-obj
+   "grpc_register_plugin"
+   lib-grpc
+   (_fun _void-fn _void-fn -> _void)))
 
 (module+ test
-         (let ([init-fn (lambda () #f)]
-               [destroy-fn (lambda () #f)])
-           (test-not-exn "grpc-register-plugin doesn't throw" (lambda () (grpc-register-plugin init-fn destroy-fn)))))
+  (let ([init-fn (lambda () #f)]
+        [destroy-fn (lambda () #f)])
+    (test-not-exn
+     "grpc-register-plugin doesn't throw"
+     (lambda () (grpc-register-plugin init-fn destroy-fn)))))
 
 
+(define grpc-version-string
+  (get-ffi-obj "grpc_version_string" lib-grpc (_fun -> _string/utf-8)))
+
+(module+ test
+  (check-equal? (grpc-version-string) "4.0.0"))
+
+
+(define grpc-g-stands-for
+  (get-ffi-obj "grpc_g_stands_for" lib-grpc (_fun -> _string/utf-8)))
+
+(module+ test
+  (check-equal? (grpc-g-stands-for) "gregarious"))
+
+
+(define grpc-completion-queue-factory-lookup
+  (get-ffi-obj
+   "grpc_completion_queue_factory_lookup"
+   lib-grpc
+   (_fun _grpc-completion-queue-attributes-pointer -> _pointer)))
+
+(module+ test
+  (test-not-exn
+   "grpc-completion-queue-factory-lookup doesn't throw"
+   (lambda ()
+     (let ([attributes (malloc-struct _grpc-completion-queue-attributes)])
+       (set-grpc-completion-queue-attributes-version! attributes 1)
+       (grpc-completion-queue-factory-lookup attributes)
+       (free attributes)))))
   ;
-  ;GRPCAPI const char *   grpc_version_string (void)
-  ;   Return a string representing the current version of grpc. More...
-  ;
-  ;GRPCAPI const char *   grpc_g_stands_for (void)
-  ;   Return a string specifying what the 'g' in gRPC stands for. More...
-  ;
-  ;GRPCAPI const
-  ;grpc_completion_queue_factory *   grpc_completion_queue_factory_lookup (const grpc_completion_queue_attributes *attributes)
-  ;   Returns the completion queue factory based on the attributes. More...
   ;
   ;GRPCAPI grpc_completion_queue *   grpc_completion_queue_create_for_next (void *reserved)
   ;   Helper function to create a completion queue with grpc_cq_completion_type of GRPC_CQ_NEXT and grpc_cq_polling_type of GRPC_CQ_DEFAULT_POLLING. More...

@@ -3,11 +3,10 @@
 (require ffi/unsafe
          ffi/cvector
          ffi/unsafe/cvector
+         "types.rkt"
          "enums.rkt")
 
 (provide (all-defined-out))
-
-(define _size_t _int64)
 
 (define-cstruct _gpr-timespec
   ([tv_sec _int64]
@@ -28,3 +27,8 @@
    [deadline _gpr-timespec]
    [flags _uint]
    [reserved _pointer]))
+
+(define-cstruct _grpc-completion-queue-attributes
+  ([version _int]
+   [cq_completion_type _grpc-cq-completion-type]
+   [cq_polling_type _grpc-cq-polling-type]))
