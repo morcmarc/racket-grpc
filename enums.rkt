@@ -21,3 +21,9 @@
    '(grpc-cq-default-polling
      grpc-cq-non-listening
      grpc-cq-non-polling)))
+
+(define _grpc-completion-type
+  (_enum
+   '(grpc-queue-shutdown
+     grpc-queue-timeout
+     grpc-op-complete)))

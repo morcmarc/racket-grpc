@@ -32,3 +32,8 @@
   ([version _int]
    [cq_completion_type _grpc-cq-completion-type]
    [cq_polling_type _grpc-cq-polling-type]))
+
+(define-cstruct _grpc-event
+  ([type _grpc-completion-type]
+   [success _int]
+   [reserved _pointer]))

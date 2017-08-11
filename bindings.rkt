@@ -22,7 +22,8 @@
   (get-ffi-obj
    "grpc_metadata_array_init"
    lib-grpc
-   (_fun _grpc-metadata-array-pointer -> _void)))
+   (
+_fun _grpc-metadata-array-pointer -> _void)))
 
 (define grpc-metadata-array-destroy
   (get-ffi-obj
@@ -114,19 +115,39 @@
        (set-grpc-completion-queue-attributes-version! attributes 1)
        (grpc-completion-queue-factory-lookup attributes)
        (free attributes)))))
-  ;
-  ;
-  ;GRPCAPI grpc_completion_queue *   grpc_completion_queue_create_for_next (void *reserved)
-  ;   Helper function to create a completion queue with grpc_cq_completion_type of GRPC_CQ_NEXT and grpc_cq_polling_type of GRPC_CQ_DEFAULT_POLLING. More...
-  ;
-  ;GRPCAPI grpc_completion_queue *   grpc_completion_queue_create_for_pluck (void *reserved)
-  ;   Helper function to create a completion queue with grpc_cq_completion_type of GRPC_CQ_PLUCK and grpc_cq_polling_type of GRPC_CQ_DEFAULT_POLLING. More...
-  ;
-  ;GRPCAPI grpc_completion_queue *   grpc_completion_queue_create (const grpc_completion_queue_factory *factory, const grpc_completion_queue_attributes *attributes, void *reserved)
-  ;   Create a completion queue. More...
-  ;
-  ;GRPCAPI grpc_event   grpc_completion_queue_next (grpc_completion_queue *cq, gpr_timespec deadline, void *reserved)
-  ;   Blocks until an event is available, the completion queue is being shut down, or deadline is reached. More...
+
+
+(define grpc-completion-queue-create-for-next
+  (get-ffi-obj
+   "grpc_completion_queue_create_for_next"
+   lib-grpc
+   (_fun _reserved -> _grpc-completion-queue-pointer)))
+
+(define grpc-completion-queue-create-for-pluck
+  (get-ffi-obj
+   "grpc_completion_queue_create_for_pluck"
+   lib-grpc
+   (_fun _reserved -> _grpc-completion-queue-pointer)))
+
+(define grpc-completion-queue-create
+  (get-ffi-obj
+   "grpc_completion_queue_create"
+   lib-grpc
+   (_fun _grpc-completion-queue-factory-pointer
+         _grpc-completion-queue-attributes-pointer
+         _reserved
+         -> _grpc-completion-queue-pointer)))
+
+(define grpc-completion-queue-next
+  (get-ffi-obj
+   "grpc_completion_queue_next"
+   lib-grpc
+   (_fun _grpc-completion-queue-pointer
+         _gpr-timespec
+         _reserved
+         -> _grpc-event)))
+
+
   ;
   ;GRPCAPI grpc_event   grpc_completion_queue_pluck (grpc_completion_queue *cq, void *tag, gpr_timespec deadline, void *reserved)
   ;   Blocks until an event with tag 'tag' is available, the completion queue is being shutdown or deadline is reached. More...
