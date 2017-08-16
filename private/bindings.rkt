@@ -255,7 +255,7 @@
          _reserved
          -> _pointer)))
 
-(define grpc-channel-create-registerd-call
+(define grpc-channel-create-registered-call
   (get-ffi-obj
    "grpc_channel_create_registered_call"
    lib-grpc
@@ -263,7 +263,7 @@
          _grpc-call-pointer
          _uint
          _grpc-completion-queue-pointer
-         _grpc-registerd-call-handle-pointer
+         _grpc-registered-call-handle-pointer
          _gpr-timespec
          _reserved
          -> _grpc-call-pointer)))
