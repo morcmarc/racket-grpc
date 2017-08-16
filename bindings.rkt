@@ -2,15 +2,19 @@
 
 (require ffi/unsafe
          "structs.rkt"
-         "types.rkt")
+         "types.rkt"
+         "enums.rkt")
 
 (provide (all-defined-out))
 
 (module+ test
-         (require rackunit
-                  "malloc.rkt"))
+  (require rackunit
+           "malloc.rkt"))
 
 (define lib-grpc (ffi-lib "libgrpc"))
+
+
+#| generic functions |#
 
 (define grpc-init
   (get-ffi-obj "grpc_init" lib-grpc (_fun -> _void)))
@@ -18,12 +22,40 @@
 (define grpc-shutdown
   (get-ffi-obj "grpc_shutdown" lib-grpc (_fun -> _void)))
 
+(define grpc-register-plugin
+  (get-ffi-obj
+   "grpc_register_plugin"
+   lib-grpc
+   (_fun _void-fn _void-fn -> _void)))
+
+(module+ test
+  (let ([init-fn (lambda () #f)]
+        [destroy-fn (lambda () #f)])
+    (test-not-exn
+     "grpc-register-plugin doesn't throw"
+     (lambda () (grpc-register-plugin init-fn destroy-fn)))))
+
+(define grpc-version-string
+  (get-ffi-obj "grpc_version_string" lib-grpc (_fun -> _string/utf-8)))
+
+(module+ test
+  (check-equal? (grpc-version-string) "4.0.0"))
+
+
+(define grpc-g-stands-for
+  (get-ffi-obj "grpc_g_stands_for" lib-grpc (_fun -> _string/utf-8)))
+
+(module+ test
+  (check-equal? (grpc-g-stands-for) "gregarious"))
+
+
+#| metadata array |#
+
 (define grpc-metadata-array-init
   (get-ffi-obj
    "grpc_metadata_array_init"
    lib-grpc
-   (
-_fun _grpc-metadata-array-pointer -> _void)))
+   (_fun _grpc-metadata-array-pointer -> _void)))
 
 (define grpc-metadata-array-destroy
   (get-ffi-obj
@@ -45,6 +77,8 @@ _fun _grpc-metadata-array-pointer -> _void)))
                       grpc-metadata-array-destroy
                       #:cast _grpc-metadata-array-pointer))))
 
+
+#| call details |#
 
 (define grpc-call-details-init
   (get-ffi-obj
@@ -73,33 +107,7 @@ _fun _grpc-metadata-array-pointer -> _void)))
                       #:cast _grpc-call-details-pointer))))
 
 
-(define grpc-register-plugin
-  (get-ffi-obj
-   "grpc_register_plugin"
-   lib-grpc
-   (_fun _void-fn _void-fn -> _void)))
-
-(module+ test
-  (let ([init-fn (lambda () #f)]
-        [destroy-fn (lambda () #f)])
-    (test-not-exn
-     "grpc-register-plugin doesn't throw"
-     (lambda () (grpc-register-plugin init-fn destroy-fn)))))
-
-
-(define grpc-version-string
-  (get-ffi-obj "grpc_version_string" lib-grpc (_fun -> _string/utf-8)))
-
-(module+ test
-  (check-equal? (grpc-version-string) "4.0.0"))
-
-
-(define grpc-g-stands-for
-  (get-ffi-obj "grpc_g_stands_for" lib-grpc (_fun -> _string/utf-8)))
-
-(module+ test
-  (check-equal? (grpc-g-stands-for) "gregarious"))
-
+#| completion queue |#
 
 (define grpc-completion-queue-factory-lookup
   (get-ffi-obj
@@ -115,7 +123,6 @@ _fun _grpc-metadata-array-pointer -> _void)))
        (set-grpc-completion-queue-attributes-version! attributes 1)
        (grpc-completion-queue-factory-lookup attributes)
        (free attributes)))))
-
 
 (define grpc-completion-queue-create-for-next
   (get-ffi-obj
@@ -147,46 +154,120 @@ _fun _grpc-metadata-array-pointer -> _void)))
          _reserved
          -> _grpc-event)))
 
+(define grpc-completion-queue-pluck
+  (get-ffi-obj
+   "grpc_completion_queue_pluck"
+   lib-grpc
+   (_fun _grpc-completion-queue-pointer
+         _tag
+         _gpr-timespec
+         _reserved
+         -> _grpc-event)))
 
-  ;
-  ;GRPCAPI grpc_event   grpc_completion_queue_pluck (grpc_completion_queue *cq, void *tag, gpr_timespec deadline, void *reserved)
-  ;   Blocks until an event with tag 'tag' is available, the completion queue is being shutdown or deadline is reached. More...
-  ;
-  ;GRPCAPI void   grpc_completion_queue_shutdown (grpc_completion_queue *cq)
-  ;   Begin destruction of a completion queue. More...
-  ;
-  ;GRPCAPI void   grpc_completion_queue_destroy (grpc_completion_queue *cq)
-  ;   Destroy a completion queue. More...
-  ;
-  ;GRPCAPI grpc_alarm *   grpc_alarm_create (grpc_completion_queue *cq, gpr_timespec deadline, void *tag)
-  ;   Create a completion queue alarm instance associated to cq. More...
-  ;
-  ;GRPCAPI void   grpc_alarm_cancel (grpc_alarm *alarm)
-  ;   Cancel a completion queue alarm. More...
-  ;
-  ;GRPCAPI void   grpc_alarm_destroy (grpc_alarm *alarm)
-  ;   Destroy the given completion queue alarm, cancelling it in the process. More...
-  ;
-  ;GRPCAPI grpc_connectivity_state   grpc_channel_check_connectivity_state (grpc_channel *channel, int try_to_connect)
-  ;   Check the connectivity state of a channel. More...
-  ;
-  ;GRPCAPI int   grpc_channel_num_external_connectivity_watchers (grpc_channel *channel)
-  ;   Number of active "external connectivity state watchers" attached to a channel. More...
-  ;
-  ;GRPCAPI void   grpc_channel_watch_connectivity_state (grpc_channel *channel, grpc_connectivity_state last_observed_state, gpr_timespec deadline, grpc_completion_queue *cq, void *tag)
-  ;   Watch for a change in connectivity state. More...
-  ;
-  ;GRPCAPI grpc_call *   grpc_channel_create_call (grpc_channel *channel, grpc_call *parent_call, uint32_t propagation_mask, grpc_completion_queue *completion_queue, grpc_slice method, const grpc_slice *host, gpr_timespec deadline, void *reserved)
-  ;   Create a call given a grpc_channel, in order to call 'method'. More...
-  ;
-  ;GRPCAPI void   grpc_channel_ping (grpc_channel *channel, grpc_completion_queue *cq, void *tag, void *reserved)
-  ;   Ping the channels peer (load balanced channels will select one sub-channel to ping); if the channel is not connected, posts a failed. More...
-  ;
-  ;GRPCAPI void *   grpc_channel_register_call (grpc_channel *channel, const char *method, const char *host, void *reserved)
-  ;   Pre-register a method/host pair on a channel. More...
-  ;
-  ;GRPCAPI grpc_call *   grpc_channel_create_registered_call (grpc_channel *channel, grpc_call *parent_call, uint32_t propagation_mask, grpc_completion_queue *completion_queue, void *registered_call_handle, gpr_timespec deadline, void *reserved)
-  ;   Create a call given a handle returned from grpc_channel_register_call. More...
+(define grpc-completion-queue-shutdown
+  (get-ffi-obj "grpc_completion_queue_shutdown"
+               lib-grpc
+               (_fun _grpc-completion-queue-pointer -> _void)))
+
+(define grpc-completion-queue-destroy
+  (get-ffi-obj "grpc_completion_queue_destroy"
+               lib-grpc
+               (_fun _grpc-completion-queue-pointer -> _void)))
+
+
+#| alarm |#
+
+(define grpc-alarm-create
+  (get-ffi-obj
+   "grpc_alarm_create"
+   lib-grpc
+   (_fun _grpc-completion-queue-pointer
+         _gpr-timespec
+         _tag
+         -> _grpc-alarm-pointer)))
+
+(define grpc-alarm-cancel
+  (get-ffi-obj "grpc_alarm_cancel" lib-grpc (_fun _grpc-alarm-pointer -> _void)))
+
+(define grpc-alarm-destroy
+  (get-ffi-obj
+   "grpc_alarm_destroy"
+   lib-grpc
+   (_fun _grpc-alarm-pointer -> _void)))
+
+
+#| channels |#
+
+(define grpc-channel-check-connectivity-state
+  (get-ffi-obj
+   "grpc_channel_check_connectivity_state"
+   lib-grpc
+   (_fun _grpc-channel-pointer _int -> _grpc-connectivity-state)))
+
+(define grpc-channel-num-external-connectivity-watchers
+  (get-ffi-obj
+   "grpc_channel_num_external_connectivity_watchers"
+   lib-grpc
+   (_fun _grpc-channel-pointer -> _int)))
+
+(define grpc-channel-watch-connectivity-state
+  (get-ffi-obj
+   "grpc_channel_watch_connectivity_state"
+   lib-grpc
+   (_fun _grpc-channel-pointer
+         _grpc-connectivity-state
+         _gpr-timespec
+         _grpc-completion-queue-pointer
+         _tag
+         -> _void)))
+
+(define grpc-channel-create-call
+  (get-ffi-obj
+   "grpc_channel_create_call"
+   lib-grpc
+   (_fun _grpc-channel-pointer
+         _grpc-call-pointer
+         _uint
+         _grpc-completion-queue-pointer
+         _grpc-slice
+         _grpc-slice-pointer
+         _gpr-timespec
+         _reserved
+         -> _grpc-call-pointer)))
+
+(define grpc-channel-ping
+  (get-ffi-obj
+   "grpc_channel_ping"
+   lib-grpc
+   (_fun _grpc-channel-pointer
+         _grpc-completion-queue-pointer
+         _tag
+         _reserved
+         -> _void)))
+
+(define grpc-channel-register-call
+  (get-ffi-obj
+   "grpc_channel_register_call"
+   lib-grpc
+   (_fun _grpc-channel-pointer
+         _string/utf-8
+         _string/utf-8
+         _reserved
+         -> _pointer)))
+
+(define grpc-channel-create-registerd-call
+  (get-ffi-obj
+   "grpc_channel_create_registered_call"
+   lib-grpc
+   (_fun _grpc-channel-pointer
+         _grpc-call-pointer
+         _uint
+         _grpc-completion-queue-pointer
+         _grpc-registerd-call-handle-pointer
+         _gpr-timespec
+         _reserved
+         -> _grpc-call-pointer)))
+
   ;
   ;GRPCAPI void *   grpc_call_arena_alloc (grpc_call *call, size_t size)
   ;   Allocate memory in the grpc_call arena: this memory is automatically discarded at call completion. More...

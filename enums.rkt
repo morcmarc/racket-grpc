@@ -6,7 +6,7 @@
 
 (define _gpr-clock-type
   (_enum
-   '(gpr-clock-monotonic
+   '(gpr-clock-monotonic = 0
      gpr-clock-realtime
      gpr-clock-precise
      gpr-timespan)))
@@ -27,3 +27,12 @@
    '(grpc-queue-shutdown
      grpc-queue-timeout
      grpc-op-complete)))
+
+(define _grpc-connectivity-state
+  (_enum
+   '(grpc-channel-init = -1
+     grpc-channel-idle
+     grpc-channel-connecting
+     grpc-channel-ready
+     grpc-channel-transient-failure
+     grpc-channel-shutdown)))
