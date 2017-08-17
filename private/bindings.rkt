@@ -268,13 +268,30 @@
          _reserved
          -> _grpc-call-pointer)))
 
-  ;
-  ;GRPCAPI void *   grpc_call_arena_alloc (grpc_call *call, size_t size)
-  ;   Allocate memory in the grpc_call arena: this memory is automatically discarded at call completion. More...
-  ;
-  ;GRPCAPI grpc_call_error   grpc_call_start_batch (grpc_call *call, const grpc_op *ops, size_t nops, void *tag, void *reserved)
-  ;   Start a batch of operations defined in the array ops; when complete, post a completion of type 'tag' to the completion queue bound to the call. More...
-  ;
+(define grpc-call-arena-alloc
+  (get-ffi-obj
+   "grpc_call_arena_alloc"
+   lib-grpc
+   (_fun _grpc-call-pointer _size_t -> _pointer)))
+
+(define grpc-call-start-batch
+  (get-ffi-obj
+   "grpc_call_start_batch"
+   lib-grpc
+   (_fun _grpc-call-pointer
+         _grpc-op-pointer
+         _size_t
+         _tag
+         _reserved
+         -> _grpc-call-error)))
+
+(define grpc-call-get-peer
+  (get-ffi-obj
+   "grpc_call_get_peer"
+   lib-grpc
+   (_fun _grpc-call-pointer -> _string/utf-8)))
+
+
   ;GRPCAPI char *   grpc_call_get_peer (grpc_call *call)
   ;   Returns a newly allocated string representing the endpoint to which this call is communicating with. More...
   ;
