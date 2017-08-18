@@ -79,9 +79,26 @@
           _reserved-struct
           _grpc-send-initial-metadata
           _grpc-send-message
+          ; TODO
           ;_grpc-send-status-from-server
           ;_grpc-recv-initial-metadata
           ;_grpc-recv-message
           ;_grpc-recv-status-on-client
           ;_grpc-close-on-server
           )]))
+
+(define-cstruct _grpc-channel-info
+  ([lb_policy_name _string/utf-8]
+   [service_config_json _string/utf-8]))
+
+(define-cstruct _grpc-arg
+  ([type _grpc-arg-type]
+   [key _string/utf-8]
+   [value (_union
+           (_list-struct _string/utf-8
+                         _int
+                         _grpc-arg-pointer-vtable-pointer))]))
+
+(define-cstruct _grpc-channel-args
+  ([num_args _size_t]
+   [args _grpc-arg-pointer]))

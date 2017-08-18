@@ -6,81 +6,96 @@
 
 (define _gpr-clock-type
   (_enum
-   '(gpr-clock-monotonic = 0
-     gpr-clock-realtime
-     gpr-clock-precise
+   '(monotonic = 0
+     realtime
+     precise
      gpr-timespan)))
 
 (define _grpc-cq-completion-type
-  (_enum
-   '(grpc-cq-next
-     grpc-cq-pluck)))
+  (_enum '(next pluck)))
 
 (define _grpc-cq-polling-type
-  (_enum
-   '(grpc-cq-default-polling
-     grpc-cq-non-listening
-     grpc-cq-non-polling)))
+  (_enum '(default-polling non-listening non-polling)))
 
 (define _grpc-completion-type
-  (_enum
-   '(grpc-queue-shutdown
-     grpc-queue-timeout
-     grpc-op-complete)))
+  (_enum '(queue-shutdown queue-timeout op-complete)))
 
 (define _grpc-connectivity-state
   (_enum
-   '(grpc-channel-init = -1
-     grpc-channel-idle
-     grpc-channel-connecting
-     grpc-channel-ready
-     grpc-channel-transient-failure
-     grpc-channel-shutdown)))
+   '(init = -1
+     idle
+     connecting
+     ready
+     transient-failure
+     shutdown)))
 
 (define _grpc-op-type
   (_enum
-   '(grpc-op-send-initial-metadata = 0
-     grpc-op-send-message
-     grpc-op-send-close-from-client
-     grpc-op-send-status-from-server
-     grpc-op-recv-initial-metadata
-     grpc-op-recv-message
-     grpc-op-recv-status-on-client
-     gprc-op-recv-close-on-server)))
+   '(send-initial-metadata = 0
+     send-message
+     send-close-from-client
+     send-status-from-server
+     recv-initial-metadata
+     recv-message
+     recv-status-on-client
+     recv-close-on-server)))
 
 (define _grpc-compression-level
   (_enum
-   '(grpc-compression-level-none = 0
-     grpc-compression-level-low
-     grpc-compression-level-med
-     grpc-compression-level-high
-     grpc-compression-level-count)))
+   '(none = 0
+     low
+     med
+     high
+     count)))
 
 (define _grpc-compression-algorithm
   (_enum
-   '(_grpc-compress-none = 0
-     _grpc-compress-deflate
-     _grpc-compress-gzip
-     _grpc-compress-algorithms-count)))
+   '(none = 0
+     deflate
+     gzip
+     algorithms-count)))
 
 (define _grpc-byte-buffer-type
-  (_enum
-   '(_grpc-bb-raw)))
+  (_enum '(raw)))
 
 (define _grpc-call-error
   (_enum
-   '(_grpc-call-ok
-     _grpc-call-error
-     _grpc-call-error-not-on-server
-     _grpc-call-error-not-on-client
-     _grpc-call-error-already-accepted
-     _grpc-call-error-already-invoked
-     _grpc-call-error-not-invoked
-     _grpc-call-error-already-finished
-     _grpc-call-error-too-many-operations
-     _grpc-call-error-invalid-flags
-     _grpc-call-error-invalid-metadata
-     _grpc-call-error-invalid-message
-     _grpc-call-error-not-server-completion-queue
-     _grpc-call-error-batch-too-big
-     _grpc-call-error-payload-type-mismatch)))
+   '(ok
+     error
+     not-on-server
+     not-on-client
+     already-accepted
+     already-invoked
+     not-invoked
+     already-finished
+     too-many-operations
+     invalid-flags
+     invalid-metadata
+     invalid-message
+     not-server-completion-queue
+     batch-too-big
+     payload-type-mismatch)))
+
+(define _grpc-arg-type
+  (_enum '(string integer pointer)))
+
+(define _grpc-status-code
+  (_enum
+   '(do-not-use = -1
+     ok = 0
+     cancelled = 1
+     unknown = 2
+     invalid-argument = 3
+     deadline-exceeded = 4
+     not-found = 5
+     already-exists = 6
+     permission-denied = 7
+     unauthenticated = 16
+     resource-exhausted = 8
+     failed-precondition = 9
+     aborted = 10
+     out-of-range = 11
+     unimplemented = 12
+     internal = 13
+     unavailable = 14
+     data-loss = 15)))

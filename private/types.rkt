@@ -13,5 +13,7 @@
 (define _grpc-call-pointer _pointer)
 (define _grpc-registered-call-handle-pointer _pointer)
 (define _grpc-metadata-pointer _pointer)
+(define _grpc-census-context-pointer _pointer)
+(define _grpc-arg-pointer-vtable-pointer _pointer)
 (define _reserved (_or-null _pointer))
 (define _tag (_or-null _pointer))

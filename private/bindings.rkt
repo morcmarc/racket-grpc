@@ -268,6 +268,8 @@
          _reserved
          -> _grpc-call-pointer)))
 
+#| call functions |#
+
 (define grpc-call-arena-alloc
   (get-ffi-obj
    "grpc_call_arena_alloc"
@@ -292,26 +294,51 @@
    (_fun _grpc-call-pointer -> _string/utf-8)))
 
 
-  ;GRPCAPI char *   grpc_call_get_peer (grpc_call *call)
-  ;   Returns a newly allocated string representing the endpoint to which this call is communicating with. More...
-  ;
-  ;GRPCAPI void   grpc_census_call_set_context (grpc_call *call, struct census_context *context)
-  ;   Set census context for a call; Must be called before first call to grpc_call_start_batch(). More...
-  ;
-  ;GRPCAPI struct census_context *   grpc_census_call_get_context (grpc_call *call)
-  ;   Retrieve the calls current census context. More...
-  ;
-  ;GRPCAPI char *   grpc_channel_get_target (grpc_channel *channel)
-  ;   Return a newly allocated string representing the target a channel was created for. More...
-  ;
-  ;GRPCAPI void   grpc_channel_get_info (grpc_channel *channel, const grpc_channel_info *channel_info)
-  ;   Request info about the channel. More...
-  ;
-  ;GRPCAPI grpc_channel *   grpc_insecure_channel_create (const char *target, const grpc_channel_args *args, void *reserved)
-  ;   Create a client channel to 'target'. More...
-  ;
-  ;GRPCAPI grpc_channel *   grpc_lame_client_channel_create (const char *target, grpc_status_code error_code, const char *error_message)
-  ;   Create a lame client: this client fails every operation attempted on it. More...
+#| census functions |#
+
+(define grpc-census-call-set-context
+  (get-ffi-obj
+   "grpc_census_call_set_context"
+   lib-grpc
+   (_fun _grpc-call-pointer _grpc-census-context-pointer -> _void)))
+
+(define grpc-census-call-get-context
+  (get-ffi-obj
+   "grpc_census_call_get_context"
+   lib-grpc
+   (_fun _grpc-call-pointer -> _grpc-census-context-pointer)))
+
+(define grpc-channel-get-target
+  (get-ffi-obj
+   "grpc_channel_get_target"
+   lib-grpc
+   (_fun _grpc-channel-pointer -> _string/utf-8)))
+
+(define grpc-channel-get-info
+  (get-ffi-obj
+   "grpc_channel_get_info"
+   lib-grpc
+   (_fun _grpc-channel-pointer _grpc-channel-info-pointer -> _void)))
+
+(define grpc-insecure-channel-create
+  (get-ffi-obj
+   "grpc_insecure_channel_create"
+   lib-grpc
+   (_fun _string/utf-8
+         _grpc-channel-args-pointer
+         _reserved
+         -> _grpc-channel-pointer)))
+
+(define grpc-lame-client-channel-create
+  (get-ffi-obj
+   "grpc_lame_client_channel_create"
+   lib-grpc
+   (_fun _string/utf-8
+         _grpc-status-code
+         _string/utf-8
+         -> _grpc-channel-pointer)))
+
+
   ;
   ;GRPCAPI void   grpc_channel_destroy (grpc_channel *channel)
   ;   Close and destroy a grpc channel. More...
