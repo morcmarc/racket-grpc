@@ -3,3 +3,4 @@
 (define name "racket-grpc")
 (define version "0.1")
 (define author '("Marcell Jusztin <hello@morcmarc.com"))
+(define deps '("ffi-definer-convention"))

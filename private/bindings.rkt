@@ -1,6 +1,9 @@
 #lang racket/base
 
 (require ffi/unsafe
+         (except-in ffi/unsafe/define
+                    define-ffi-definer)
+         ffi-definer-convention
          "structs.rkt"
          "types.rkt"
          "enums.rkt")
@@ -12,21 +15,20 @@
            "malloc.rkt"))
 
 (define lib-grpc (ffi-lib "libgrpc"))
+(define-ffi-definer define-grpc lib-grpc
+  #:make-c-id convention:hyphen->underscore)
 
 
 #| generic functions |#
 
-(define grpc-init
-  (get-ffi-obj "grpc_init" lib-grpc (_fun -> _void)))
+(define-grpc grpc-init
+  (_fun -> _void))
 
-(define grpc-shutdown
-  (get-ffi-obj "grpc_shutdown" lib-grpc (_fun -> _void)))
+(define-grpc grpc-shutdown
+  (_fun -> _void))
 
-(define grpc-register-plugin
-  (get-ffi-obj
-   "grpc_register_plugin"
-   lib-grpc
-   (_fun _void-fn _void-fn -> _void)))
+(define-grpc grpc-register-plugin
+  (_fun _void-fn _void-fn -> _void))
 
 (module+ test
   (let ([init-fn (lambda () #f)]
@@ -35,15 +37,15 @@
      "grpc-register-plugin doesn't throw"
      (lambda () (grpc-register-plugin init-fn destroy-fn)))))
 
-(define grpc-version-string
-  (get-ffi-obj "grpc_version_string" lib-grpc (_fun -> _string/utf-8)))
+(define-grpc grpc-version-string
+  (_fun -> _string/utf-8))
 
 (module+ test
   (check-equal? (grpc-version-string) "4.0.0"))
 
 
-(define grpc-g-stands-for
-  (get-ffi-obj "grpc_g_stands_for" lib-grpc (_fun -> _string/utf-8)))
+(define-grpc grpc-g-stands-for
+  (_fun -> _string/utf-8))
 
 (module+ test
   (check-equal? (grpc-g-stands-for) "gregarious"))
@@ -51,17 +53,11 @@
 
 #| metadata array |#
 
-(define grpc-metadata-array-init
-  (get-ffi-obj
-   "grpc_metadata_array_init"
-   lib-grpc
-   (_fun _grpc-metadata-array-pointer -> _void)))
+(define-grpc grpc-metadata-array-init
+  (_fun _grpc-metadata-array-pointer -> _void))
 
-(define grpc-metadata-array-destroy
-  (get-ffi-obj
-   "grpc_metadata_array_destroy"
-   lib-grpc
-   (_fun _grpc-metadata-array-pointer -> _void)))
+(define-grpc grpc-metadata-array-destroy
+  (_fun _grpc-metadata-array-pointer -> _void))
 
 (module+ test
   (test-not-exn
@@ -80,17 +76,11 @@
 
 #| call details |#
 
-(define grpc-call-details-init
-  (get-ffi-obj
-   "grpc_call_details_init"
-   lib-grpc
-   (_fun _grpc-call-details-pointer -> _void)))
+(define-grpc grpc-call-details-init
+  (_fun _grpc-call-details-pointer -> _void))
 
-(define grpc-call-details-destroy
-  (get-ffi-obj
-   "grpc_call_details_destroy"
-   lib-grpc
-   (_fun _grpc-call-details-pointer -> _void)))
+(define-grpc grpc-call-details-destroy
+  (_fun _grpc-call-details-pointer -> _void))
 
 (module+ test
  (test-not-exn
@@ -109,11 +99,8 @@
 
 #| completion queue |#
 
-(define grpc-completion-queue-factory-lookup
-  (get-ffi-obj
-   "grpc_completion_queue_factory_lookup"
-   lib-grpc
-   (_fun _grpc-completion-queue-attributes-pointer -> _pointer)))
+(define-grpc grpc-completion-queue-factory-lookup
+  (_fun _grpc-completion-queue-attributes-pointer -> _pointer))
 
 (module+ test
   (test-not-exn
@@ -124,219 +111,146 @@
        (grpc-completion-queue-factory-lookup attributes)
        (free attributes)))))
 
-(define grpc-completion-queue-create-for-next
-  (get-ffi-obj
-   "grpc_completion_queue_create_for_next"
-   lib-grpc
-   (_fun _reserved -> _grpc-completion-queue-pointer)))
+(define-grpc grpc-completion-queue-create-for-next
+  (_fun _reserved -> _grpc-completion-queue-pointer))
 
-(define grpc-completion-queue-create-for-pluck
-  (get-ffi-obj
-   "grpc_completion_queue_create_for_pluck"
-   lib-grpc
-   (_fun _reserved -> _grpc-completion-queue-pointer)))
+(define-grpc grpc-completion-queue-create-for-pluck
+  (_fun _reserved -> _grpc-completion-queue-pointer))
 
-(define grpc-completion-queue-create
-  (get-ffi-obj
-   "grpc_completion_queue_create"
-   lib-grpc
-   (_fun _grpc-completion-queue-factory-pointer
-         _grpc-completion-queue-attributes-pointer
-         _reserved
-         -> _grpc-completion-queue-pointer)))
+(define-grpc grpc-completion-queue-create
+  (_fun _grpc-completion-queue-factory-pointer
+        _grpc-completion-queue-attributes-pointer
+        _reserved
+        -> _grpc-completion-queue-pointer))
 
-(define grpc-completion-queue-next
-  (get-ffi-obj
-   "grpc_completion_queue_next"
-   lib-grpc
-   (_fun _grpc-completion-queue-pointer
-         _gpr-timespec
-         _reserved
-         -> _grpc-event)))
+(define-grpc grpc-completion-queue-next
+  (_fun _grpc-completion-queue-pointer
+        _gpr-timespec
+        _reserved
+        -> _grpc-event))
 
-(define grpc-completion-queue-pluck
-  (get-ffi-obj
-   "grpc_completion_queue_pluck"
-   lib-grpc
-   (_fun _grpc-completion-queue-pointer
-         _tag
-         _gpr-timespec
-         _reserved
-         -> _grpc-event)))
+(define-grpc grpc-completion-queue-pluck
+  (_fun _grpc-completion-queue-pointer
+        _tag
+        _gpr-timespec
+        _reserved
+        -> _grpc-event))
 
-(define grpc-completion-queue-shutdown
-  (get-ffi-obj "grpc_completion_queue_shutdown"
-               lib-grpc
-               (_fun _grpc-completion-queue-pointer -> _void)))
+(define-grpc grpc-completion-queue-shutdown
+  (_fun _grpc-completion-queue-pointer -> _void))
 
-(define grpc-completion-queue-destroy
-  (get-ffi-obj "grpc_completion_queue_destroy"
-               lib-grpc
-               (_fun _grpc-completion-queue-pointer -> _void)))
+(define-grpc grpc-completion-queue-destroy
+  (_fun _grpc-completion-queue-pointer -> _void))
 
 
 #| alarm |#
 
-(define grpc-alarm-create
-  (get-ffi-obj
-   "grpc_alarm_create"
-   lib-grpc
-   (_fun _grpc-completion-queue-pointer
-         _gpr-timespec
-         _tag
-         -> _grpc-alarm-pointer)))
+(define-grpc grpc-alarm-create
+  (_fun _grpc-completion-queue-pointer
+        _gpr-timespec
+        _tag
+        -> _grpc-alarm-pointer))
 
-(define grpc-alarm-cancel
-  (get-ffi-obj "grpc_alarm_cancel" lib-grpc (_fun _grpc-alarm-pointer -> _void)))
+(define-grpc grpc-alarm-cancel
+  (_fun _grpc-alarm-pointer -> _void))
 
-(define grpc-alarm-destroy
-  (get-ffi-obj
-   "grpc_alarm_destroy"
-   lib-grpc
-   (_fun _grpc-alarm-pointer -> _void)))
+(define-grpc grpc-alarm-destroy
+  (_fun _grpc-alarm-pointer -> _void))
 
 
 #| channels |#
 
-(define grpc-channel-check-connectivity-state
-  (get-ffi-obj
-   "grpc_channel_check_connectivity_state"
-   lib-grpc
-   (_fun _grpc-channel-pointer _int -> _grpc-connectivity-state)))
+(define-grpc grpc-channel-check-connectivity-state
+  (_fun _grpc-channel-pointer _int -> _grpc-connectivity-state))
 
-(define grpc-channel-num-external-connectivity-watchers
-  (get-ffi-obj
-   "grpc_channel_num_external_connectivity_watchers"
-   lib-grpc
-   (_fun _grpc-channel-pointer -> _int)))
+(define-grpc grpc-channel-num-external-connectivity-watchers
+  (_fun _grpc-channel-pointer -> _int))
 
-(define grpc-channel-watch-connectivity-state
-  (get-ffi-obj
-   "grpc_channel_watch_connectivity_state"
-   lib-grpc
-   (_fun _grpc-channel-pointer
-         _grpc-connectivity-state
-         _gpr-timespec
-         _grpc-completion-queue-pointer
-         _tag
-         -> _void)))
+(define-grpc grpc-channel-watch-connectivity-state
+  (_fun _grpc-channel-pointer
+        _grpc-connectivity-state
+        _gpr-timespec
+        _grpc-completion-queue-pointer
+        _tag
+        -> _void))
 
-(define grpc-channel-create-call
-  (get-ffi-obj
-   "grpc_channel_create_call"
-   lib-grpc
-   (_fun _grpc-channel-pointer
-         _grpc-call-pointer
-         _uint
-         _grpc-completion-queue-pointer
-         _grpc-slice
-         _grpc-slice-pointer
-         _gpr-timespec
-         _reserved
-         -> _grpc-call-pointer)))
+(define-grpc grpc-channel-create-call
+  (_fun _grpc-channel-pointer
+        _grpc-call-pointer
+        _uint
+        _grpc-completion-queue-pointer
+        _grpc-slice
+        _grpc-slice-pointer
+        _gpr-timespec
+        _reserved
+        -> _grpc-call-pointer))
 
-(define grpc-channel-ping
-  (get-ffi-obj
-   "grpc_channel_ping"
-   lib-grpc
-   (_fun _grpc-channel-pointer
-         _grpc-completion-queue-pointer
-         _tag
-         _reserved
-         -> _void)))
+(define-grpc grpc-channel-ping
+  (_fun _grpc-channel-pointer
+        _grpc-completion-queue-pointer
+        _tag
+        _reserved
+        -> _void))
 
-(define grpc-channel-register-call
-  (get-ffi-obj
-   "grpc_channel_register_call"
-   lib-grpc
-   (_fun _grpc-channel-pointer
-         _string/utf-8
-         _string/utf-8
-         _reserved
-         -> _pointer)))
+(define-grpc grpc-channel-register-call
+  (_fun _grpc-channel-pointer
+        _string/utf-8
+        _string/utf-8
+        _reserved
+        -> _pointer))
 
-(define grpc-channel-create-registered-call
-  (get-ffi-obj
-   "grpc_channel_create_registered_call"
-   lib-grpc
-   (_fun _grpc-channel-pointer
-         _grpc-call-pointer
-         _uint
-         _grpc-completion-queue-pointer
-         _grpc-registered-call-handle-pointer
-         _gpr-timespec
-         _reserved
-         -> _grpc-call-pointer)))
+(define-grpc grpc-channel-create-registered-call
+  (_fun _grpc-channel-pointer
+        _grpc-call-pointer
+        _uint
+        _grpc-completion-queue-pointer
+        _grpc-registered-call-handle-pointer
+        _gpr-timespec
+        _reserved
+        -> _grpc-call-pointer))
 
 #| call functions |#
 
-(define grpc-call-arena-alloc
-  (get-ffi-obj
-   "grpc_call_arena_alloc"
-   lib-grpc
-   (_fun _grpc-call-pointer _size_t -> _pointer)))
+(define-grpc grpc-call-arena-alloc
+  (_fun _grpc-call-pointer _size_t -> _pointer))
 
-(define grpc-call-start-batch
-  (get-ffi-obj
-   "grpc_call_start_batch"
-   lib-grpc
-   (_fun _grpc-call-pointer
-         _grpc-op-pointer
-         _size_t
-         _tag
-         _reserved
-         -> _grpc-call-error)))
+(define-grpc grpc-call-start-batch
+  (_fun _grpc-call-pointer
+        _grpc-op-pointer
+        _size_t
+        _tag
+        _reserved
+        -> _grpc-call-error))
 
-(define grpc-call-get-peer
-  (get-ffi-obj
-   "grpc_call_get_peer"
-   lib-grpc
-   (_fun _grpc-call-pointer -> _string/utf-8)))
+(define-grpc grpc-call-get-peer
+  (_fun _grpc-call-pointer -> _string/utf-8))
 
 
 #| census functions |#
 
-(define grpc-census-call-set-context
-  (get-ffi-obj
-   "grpc_census_call_set_context"
-   lib-grpc
-   (_fun _grpc-call-pointer _grpc-census-context-pointer -> _void)))
+(define-grpc grpc-census-call-set-context
+  (_fun _grpc-call-pointer _grpc-census-context-pointer -> _void))
 
-(define grpc-census-call-get-context
-  (get-ffi-obj
-   "grpc_census_call_get_context"
-   lib-grpc
-   (_fun _grpc-call-pointer -> _grpc-census-context-pointer)))
+(define-grpc grpc-census-call-get-context
+  (_fun _grpc-call-pointer -> _grpc-census-context-pointer))
 
-(define grpc-channel-get-target
-  (get-ffi-obj
-   "grpc_channel_get_target"
-   lib-grpc
-   (_fun _grpc-channel-pointer -> _string/utf-8)))
+(define-grpc grpc-channel-get-target
+  (_fun _grpc-channel-pointer -> _string/utf-8))
 
-(define grpc-channel-get-info
-  (get-ffi-obj
-   "grpc_channel_get_info"
-   lib-grpc
-   (_fun _grpc-channel-pointer _grpc-channel-info-pointer -> _void)))
+(define-grpc grpc-channel-get-info
+  (_fun _grpc-channel-pointer _grpc-channel-info-pointer -> _void))
 
-(define grpc-insecure-channel-create
-  (get-ffi-obj
-   "grpc_insecure_channel_create"
-   lib-grpc
-   (_fun _string/utf-8
-         _grpc-channel-args-pointer
-         _reserved
-         -> _grpc-channel-pointer)))
+(define-grpc grpc-insecure-channel-create
+  (_fun _string/utf-8
+        _grpc-channel-args-pointer
+        _reserved
+        -> _grpc-channel-pointer))
 
-(define grpc-lame-client-channel-create
-  (get-ffi-obj
-   "grpc_lame_client_channel_create"
-   lib-grpc
-   (_fun _string/utf-8
-         _grpc-status-code
-         _string/utf-8
-         -> _grpc-channel-pointer)))
+(define-grpc grpc-lame-client-channel-create
+  (_fun _string/utf-8
+        _grpc-status-code
+        _string/utf-8
+        -> _grpc-channel-pointer))
 
 
   ;
