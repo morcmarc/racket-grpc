@@ -252,80 +252,110 @@
         _string/utf-8
         -> _grpc-channel-pointer))
 
+(define-grpc grpc-channel-destroy
+  (_fun _grpc-channel-pointer -> _void))
 
-  ;
-  ;GRPCAPI void   grpc_channel_destroy (grpc_channel *channel)
-  ;   Close and destroy a grpc channel. More...
-  ;
-  ;GRPCAPI grpc_call_error   grpc_call_cancel (grpc_call *call, void *reserved)
-  ;   Error handling for grpc_call Most grpc_call functions return a grpc_error. More...
-  ;
-  ;GRPCAPI grpc_call_error   grpc_call_cancel_with_status (grpc_call *call, grpc_status_code status, const char *description, void *reserved)
-  ;   Called by clients to cancel an RPC on the server. More...
-  ;
-  ;GRPCAPI void   grpc_call_ref (grpc_call *call)
-  ;   Ref a call. More...
-  ;
-  ;GRPCAPI void   grpc_call_unref (grpc_call *call)
-  ;   Unref a call. More...
-  ;
-  ;GRPCAPI grpc_call_error   grpc_server_request_call (grpc_server *server, grpc_call **call, grpc_call_details *details, grpc_metadata_array *request_metadata, grpc_completion_queue *cq_bound_to_call, grpc_completion_queue *cq_for_notification, void *tag_new)
-  ;   Request notification of a new call. More...
-  ;
-  ;GRPCAPI void *   grpc_server_register_method (grpc_server *server, const char *method, const char *host, grpc_server_register_method_payload_handling payload_handling, uint32_t flags)
-  ;   Registers a method in the server. More...
-  ;
-  ;GRPCAPI grpc_call_error   grpc_server_request_registered_call (grpc_server *server, void *registered_method, grpc_call **call, gpr_timespec *deadline, grpc_metadata_array *request_metadata, grpc_byte_buffer **optional_payload, grpc_completion_queue *cq_bound_to_call, grpc_completion_queue *cq_for_notification, void *tag_new)
-  ;   Request notification of a new pre-registered call. More...
-  ;
-  ;GRPCAPI grpc_server *   grpc_server_create (const grpc_channel_args *args, void *reserved)
-  ;   Create a server. More...
-  ;
-  ;GRPCAPI void   grpc_server_register_completion_queue (grpc_server *server, grpc_completion_queue *cq, void *reserved)
-  ;   Register a completion queue with the server. More...
-  ;
-  ;GRPCAPI int   grpc_server_add_insecure_http2_port (grpc_server *server, const char *addr)
-  ;   Add a HTTP2 over plaintext over tcp listener. More...
-  ;
-  ;GRPCAPI void   grpc_server_start (grpc_server *server)
-  ;   Start a server - tells all listeners to start listening. More...
-  ;
-  ;GRPCAPI void   grpc_server_shutdown_and_notify (grpc_server *server, grpc_completion_queue *cq, void *tag)
-  ;   Begin shutting down a server. More...
-  ;
-  ;GRPCAPI void   grpc_server_cancel_all_calls (grpc_server *server)
-  ;   Cancel all in-progress calls. More...
-  ;
-  ;GRPCAPI void   grpc_server_destroy (grpc_server *server)
-  ;   Destroy a server. More...
-  ;
-  ;GRPCAPI int   grpc_tracer_set_enabled (const char *name, int enabled)
-  ;   Enable or disable a tracer. More...
-  ;
-  ;GRPCAPI int   grpc_header_key_is_legal (grpc_slice slice)
-  ;   Check whether a metadata key is legal (will be accepted by core) More...
-  ;
-  ;GRPCAPI int   grpc_header_nonbin_value_is_legal (grpc_slice slice)
-  ;   Check whether a non-binary metadata value is legal (will be accepted by core) More...
-  ;
-  ;GRPCAPI int   grpc_is_binary_header (grpc_slice slice)
-  ;   Check whether a metadata key corresponds to a binary value. More...
-  ;
-  ;GRPCAPI const char *   grpc_call_error_to_string (grpc_call_error error)
-  ;   Convert grpc_call_error values to a string. More...
-  ;
-  ;GRPCAPI grpc_resource_quota *   grpc_resource_quota_create (const char *trace_name)
-  ;   Create a buffer pool. More...
-  ;
-  ;GRPCAPI void   grpc_resource_quota_ref (grpc_resource_quota *resource_quota)
-  ;   Add a reference to a buffer pool. More...
-  ;
-  ;GRPCAPI void   grpc_resource_quota_unref (grpc_resource_quota *resource_quota)
-  ;   Drop a reference to a buffer pool. More...
-  ;
-  ;GRPCAPI void   grpc_resource_quota_resize (grpc_resource_quota *resource_quota, size_t new_size)
-  ;   Update the size of a buffer pool. More...
-  ;
-  ;GRPCAPI const
-  ;grpc_arg_pointer_vtable *   grpc_resource_quota_arg_vtable (void)
-  ;   Fetch a vtable for a grpc_channel_arg that points to a grpc_resource_quota. More...)
+(define-grpc grpc-call-cancel
+  (_fun _grpc-call-pointer _reserved -> _grpc-call-error))
+
+(define-grpc grpc-call-cancel-with-status
+  (_fun _grpc-call-pointer
+        _grpc-status-code
+        _string/utf-8
+        _reserved
+        -> _grpc-call-error))
+
+(define-grpc grpc-call-ref
+  (_fun _grpc-call-pointer -> _void))
+
+(define-grpc grpc_call-unref
+  (_fun _grpc-call-pointer -> _void))
+
+(define-grpc grpc-server-request-call
+  (_fun _grpc-server-pointer
+        _grpc-call-pointer
+        _grpc-call-details-pointer
+        _grpc-metadata-array-pointer
+        _grpc-completion-queue-pointer
+        _grpc-completion-queue-pointer
+        _pointer
+        -> _grpc-call-error))
+
+(define-grpc grpc-server-register-method
+  (_fun _grpc-server-pointer
+        _string/utf-8
+        _string/utf-8
+        _grpc-server-register-method-payload-handling
+        _uint32
+        -> _void))
+
+(define-grpc grpc-server-request-registered-call
+  (_fun _grpc-server-pointer
+        _pointer
+        _grpc-call-pointer
+        _gpr-timespec-pointer
+        _grpc-metadata-array-pointer
+        _grpc-byte-buffer-pointer
+        _grpc-completion-queue-pointer
+        _grpc-completion-queue-pointer
+        _pointer
+        -> _grpc-call-error))
+
+(define-grpc grpc-server-create
+  (_fun _grpc-channel-args-pointer
+        _reserved
+        -> _grpc-server-pointer))
+
+(define-grpc grpc-server-register-completion-queue
+  (_fun _grpc-server-pointer
+        _grpc-completion-queue-pointer
+        _reserved
+        -> _void))
+
+(define-grpc grpc-server-add-insecure-http2-port
+  (_fun _grpc-server-pointer _string/utf-8 -> _int))
+
+(define-grpc grpc-server-start
+  (_fun _grpc-server-pointer -> _void))
+
+(define-grpc grpc-server-shutdown-and-notify
+  (_fun _grpc-server-pointer
+        _grpc-completion-queue-pointer
+        _pointer
+        -> _void))
+
+(define-grpc grpc-server-cancel-all-calls
+  (_fun _grpc-server-pointer -> _void))
+
+(define-grpc grpc-server-destroy
+  (_fun _grpc-server-pointer -> _void))
+
+(define-grpc grpc-tracer-set-enabled
+  (_fun _string/utf-8 _int -> _int))
+
+(define-grpc grpc-header-key-is-legal
+  (_fun _grpc-slice -> _int))
+
+(define-grpc grpc-header-nonbin-value-is-legal
+  (_fun _grpc-slice -> _int))
+
+(define-grpc grpc-is-binary-header
+  (_fun _grpc-slice -> _int))
+
+(define-grpc grpc-call-error-to-string
+  (_fun _grpc-call-error -> _string/utf-8))
+
+(define-grpc grpc-resource-quota-create
+  (_fun _string/utf-8 -> _grpc-resource-quota-pointer))
+
+(define-grpc grpc-resource-quota-ref
+  (_fun _grpc-resource-quota-pointer -> _void))
+
+(define-grpc grpc-resource-quota-unref
+  (_fun _grpc-resource-quota-pointer -> _void))
+
+(define-grpc grpc-resource-quota-resize
+  (_fun _grpc-resource-quota-pointer _size_t -> _void))
+
+(define-grpc grpc-resource-quota-arg-vtable
+  (_fun -> _grpc-arg-pointer-vtable-pointer))

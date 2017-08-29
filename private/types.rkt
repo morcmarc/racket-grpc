@@ -15,5 +15,7 @@
 (define _grpc-metadata-pointer _pointer)
 (define _grpc-census-context-pointer _pointer)
 (define _grpc-arg-pointer-vtable-pointer _pointer)
+(define _grpc-server-pointer _pointer)
+(define _grpc-resource-quota-pointer _pointer)
 (define _reserved (_or-null _pointer))
 (define _tag (_or-null _pointer))

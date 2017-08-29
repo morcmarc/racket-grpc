@@ -99,3 +99,7 @@
      internal = 13
      unavailable = 14
      data-loss = 15)))
+
+(define _grpc-server-register-method-payload-handling
+  (_enum '(none
+           read-initial-byte-buffer)))
