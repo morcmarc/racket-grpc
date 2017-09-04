@@ -102,15 +102,6 @@
 (define-grpc grpc-completion-queue-factory-lookup
   (_fun _grpc-completion-queue-attributes-pointer -> _pointer))
 
-(module+ test
-  (test-not-exn
-   "grpc-completion-queue-factory-lookup doesn't throw"
-   (lambda ()
-     (let ([attributes (malloc-struct _grpc-completion-queue-attributes)])
-       (set-grpc-completion-queue-attributes-version! attributes 1)
-       (grpc-completion-queue-factory-lookup attributes)
-       (free attributes)))))
-
 (define-grpc grpc-completion-queue-create-for-next
   (_fun _reserved -> _grpc-completion-queue-pointer))
 
@@ -141,6 +132,18 @@
 
 (define-grpc grpc-completion-queue-destroy
   (_fun _grpc-completion-queue-pointer -> _void))
+
+(module+ test
+  (test-not-exn
+   "completion queue creation and shutdown"
+   (λ ()
+     (let* ([attributes (malloc-struct _grpc-completion-queue-attributes)]
+            [_ (set-grpc-completion-queue-attributes-version! attributes 1)]
+            [factory (grpc-completion-queue-factory-lookup attributes)]
+            [cq (grpc-completion-queue-create factory attributes #f)])
+       (grpc-completion-queue-shutdown cq)
+       (grpc-completion-queue-destroy cq)
+       (free attributes)))))
 
 
 #| alarm |#
